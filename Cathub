@@ -1,4 +1,4 @@
--- CatHub v3.2 | [LOCAL]=only you | [GAME]=game-specific
+-- CatHub v3.3 | [LOCAL]=only you | [GAME]=game-specific
 local N,C3,V3,U2,U=Instance.new,Color3.fromRGB,Vector3.new,UDim2.new,UDim.new
 local svc=function(s)return game:GetService(s)end
 local Pl,RS,UIS,TS,CG,LT,SG2=svc"Players",svc"RunService",svc"UserInputService",svc"TweenService",svc"CoreGui",svc"Lighting",svc"StarterGui"
@@ -146,20 +146,39 @@ fr(dh,U2(1,-20,0,1),U2(0,10,1,-1),C3(38,36,55),22)
 local tlf=fr(drw,U2(1,0,1,-80),U2(0,0,0,80),BG,21);tlf.BackgroundTransparency=1;pd(tlf,6,6,0,0);ml(tlf,3)
 local TN={"Movement","Combat","Visual","Player","Utility","Extras"}
 local TI2={"🏃","⚔","👁","🧍","🔧","✨"}
-local tbB,tbP,curT={},{},0
+-- Hidden holder — inactive pages live here so they never stack inside sc
+local pgStore=N("Frame",win);pgStore.Size=U2(0,0,0,0);pgStore.BackgroundTransparency=1;pgStore.Visible=false;pgStore.ZIndex=1
+local tbB,tbP,tbL,curT={},{},{},0
+-- tbL stores the name TextLabel ref for each tab button (nil-safe, no FindFirstChild at runtime)
 local swTab=function(i)
 	if curT==i then clsD();return end
-	if curT>0 then tbP[curT].Visible=false;tbB[curT].BackgroundTransparency=1;tbB[curT]:FindFirstChildOfClass"TextLabel".TextColor3=SB end
-	tbP[i].Visible=true;tbB[i].BackgroundTransparency=0;tbB[i].BackgroundColor3=A2;tbB[i]:FindFirstChildOfClass"TextLabel".TextColor3=TX
-	local ly=tbP[i]:FindFirstChildOfClass"UIListLayout";sc.CanvasSize=U2(0,0,0,(ly and ly.AbsoluteContentSize.Y or 0)+20);sc.CanvasPosition=V3();curT=i;clsD()
+	-- safely move old page out of sc back into storage
+	if curT>0 then
+		tbP[curT].Parent=pgStore
+		tbB[curT].BackgroundTransparency=1
+		if tbL[curT] then tbL[curT].TextColor3=SB end
+	end
+	-- move new page into sc — it is now the ONLY child of sc
+	tbP[i].Parent=sc
+	tbB[i].BackgroundTransparency=0;tbB[i].BackgroundColor3=A2
+	if tbL[i] then tbL[i].TextColor3=TX end
+	sc.CanvasPosition=Vector2.new(0,0)
+	local ly=tbP[i]:FindFirstChildOfClass"UIListLayout"
+	sc.CanvasSize=U2(0,0,0,(ly and ly.AbsoluteContentSize.Y or 0)+20)
+	curT=i;clsD()
 end
 for i,name in ipairs(TN) do
 	local b=N("TextButton",tlf);b.Size=U2(1,-8,0,36);b.BackgroundTransparency=1;b.BorderSizePixel=0;b.ZIndex=22;b.AutoButtonColor=false;b.Text="";cr(b,7)
 	lbl(b,TI2[i],16,SB,false,nil,U2(0,6,0,0),U2(0,28,1,0))
-	lbl(b,name,FS,SB,true,nil,U2(0,36,0,0),U2(1,-40,1,0))
+	-- store name label ref directly, no FindFirstChild needed later
+	tbL[i]=lbl(b,name,FS,SB,true,nil,U2(0,36,0,0),U2(1,-40,1,0))
 	b.MouseButton1Click:Connect(function()swTab(i)end);tbB[i]=b
-	local pg=N("Frame",sc);pg.Size=U2(1,0,0,10);pg.BackgroundTransparency=1;pg.BorderSizePixel=0;pg.Visible=false;pg.ZIndex=7
-	local ly=ml(pg,GP);ly:GetPropertyChangedSignal"AbsoluteContentSize":Connect(function()pg.Size=U2(1,0,0,ly.AbsoluteContentSize.Y+12);if pg.Visible then sc.CanvasSize=U2(0,0,0,ly.AbsoluteContentSize.Y+20)end end);pd(pg,4,4,0,0);tbP[i]=pg
+	-- pages start in pgStore (never in sc) so they cannot overlap
+	local pg=N("Frame",pgStore);pg.Size=U2(1,0,0,10);pg.BackgroundTransparency=1;pg.BorderSizePixel=0;pg.ZIndex=7
+	local ly=ml(pg,GP);ly:GetPropertyChangedSignal"AbsoluteContentSize":Connect(function()
+		pg.Size=U2(1,0,0,ly.AbsoluteContentSize.Y+12)
+		if pg.Parent==sc then sc.CanvasSize=U2(0,0,0,ly.AbsoluteContentSize.Y+20)end
+	end);pd(pg,4,4,0,0);tbP[i]=pg
 end
 local sec=function(pg,t)local l=N("TextLabel",pg);l.Size=U2(1,0,0,18);l.BackgroundTransparency=1;l.Text=t;l.TextSize=10;l.TextColor3=SB;l.Font=Enum.Font.GothamBold;l.TextXAlignment=Enum.TextXAlignment.Center;l.ZIndex=9;return l end
 local tog=function(pg,txt,note,gF,sF)

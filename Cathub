@@ -1,0 +1,312 @@
+-- CatHub v3.2 | [LOCAL]=only you | [GAME]=game-specific
+local N,C3,V3,U2,U=Instance.new,Color3.fromRGB,Vector3.new,UDim2.new,UDim.new
+local svc=function(s)return game:GetService(s)end
+local Pl,RS,UIS,TS,CG,LT,SG2=svc"Players",svc"RunService",svc"UserInputService",svc"TweenService",svc"CoreGui",svc"Lighting",svc"StarterGui"
+local LP,Cam=Pl.LocalPlayer,workspace.CurrentCamera
+local Mo=LP:GetMouse()
+local isMob=UIS.TouchEnabled and not UIS.KeyboardEnabled
+local gC=function()return LP.Character end
+local gH=function()local c=gC();return c and c:FindFirstChild"HumanoidRootPart"end
+local gHu=function()local c=gC();return c and c:FindFirstChildOfClass"Humanoid"end
+local dc=function(c)if typeof(c)=="RBXScriptConnection"then pcall(c.Disconnect,c)end end
+local ntf=function(t,m,d)pcall(SG2.SetCore,SG2,"SendNotification",{Title=t,Text=m,Duration=d or 4})end
+local ts,tm=V3(),false
+UIS.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.Touch then ts=i.Position;tm=false end end)
+UIS.InputChanged:Connect(function(i)if i.UserInputType==Enum.UserInputType.Touch and(i.Position-ts).Magnitude>14 then tm=true end end)
+local wTap=function()return not tm end
+local S={ws=50,jp=80,fs=60,ss=5,hbs=10,ar=15,cs=10,fov=70,td=15,cm="CatHub",cd=3,con={},eo={},wp={},
+spd=false,jmp=false,ij=false,fly=false,nc=false,lg=false,bh=false,spin=false,sf=false,ltp=false,
+hb=false,ka=false,arag=false,fn=false,bt=false,sa=false,gm=false,inv=false,hl=false,frz=false,
+pt=false,ne=false,he=false,be=false,fb=false,nf=false,dt=false,tp3=false,afk=false,ac=false,csp=false}
+local aspd=function()local h=gHu();if h then h.WalkSpeed=S.spd and S.ws or 16 end end
+local ajmp=function()local h=gHu();if h then h.JumpPower=S.jmp and S.jp or 50 end end
+local agrv=function()workspace.Gravity=S.lg and 25 or 196.2 end
+local afov=function()Cam.FieldOfView=S.fov end
+UIS.JumpRequest:Connect(function()if S.ij then local h=gHu();if h then h:ChangeState(Enum.HumanoidStateType.Jumping)end end end)
+local dsFly=function()dc(S.con.fly);S.con.fly=nil;if S.fBV then S.fBV:Destroy();S.fBV=nil end;if S.fBG then S.fBG:Destroy();S.fBG=nil end end
+local enFly=function()
+	local hrp=gH();if not hrp then return end;dsFly()
+	local bv=N("BodyVelocity",hrp);bv.MaxForce=V3(9e9,9e9,9e9);bv.Velocity=V3()
+	local bg=N("BodyGyro",hrp);bg.MaxTorque=V3(9e9,9e9,9e9);bg.P=9e4
+	S.fBV,S.fBG=bv,bg
+	S.con.fly=RS.RenderStepped:Connect(function()
+		if not S.fly then return end
+		local sp=S.fs;local v=V3();local cf=Cam.CFrame
+		if UIS:IsKeyDown(Enum.KeyCode.W)then v+=cf.LookVector*sp end
+		if UIS:IsKeyDown(Enum.KeyCode.S)then v-=cf.LookVector*sp end
+		if UIS:IsKeyDown(Enum.KeyCode.A)then v-=cf.RightVector*sp end
+		if UIS:IsKeyDown(Enum.KeyCode.D)then v+=cf.RightVector*sp end
+		if UIS:IsKeyDown(Enum.KeyCode.Space)then v+=V3(0,sp,0)end
+		if UIS:IsKeyDown(Enum.KeyCode.LeftControl)then v-=V3(0,sp,0)end
+		if isMob and v==V3()then v=cf.LookVector*(sp*.4)end
+		bv.Velocity=v;bg.CFrame=cf
+	end)
+end
+local function reg(key,cond,fn)dc(S.con[key]);S.con[key]=nil;if cond then S.con[key]=fn()end end
+local anc=function()reg("nc",S.nc,function()return RS.Stepped:Connect(function()local c=gC();if c then for _,p in ipairs(c:GetDescendants())do if p:IsA"BasePart"then p.CanCollide=false end end end end)end)end
+local abh=function()reg("bh",S.bh,function()return RS.Stepped:Connect(function()local h=gHu();if h and h.FloorMaterial~=Enum.Material.Air then h:ChangeState(Enum.HumanoidStateType.Jumping)end end)end)end
+local aspin=function()reg("sp",S.spin,function()return RS.Heartbeat:Connect(function()local hrp=gH();if hrp then hrp.CFrame*=CFrame.Angles(0,math.rad(S.ss),0)end end)end)end
+local asf=function()reg("sf",S.sf,function()return RS.Stepped:Connect(function()local h=gHu();if h then h:ChangeState(Enum.HumanoidStateType.Landed)end end)end)end
+local altp=function()reg("lt",S.ltp,function()return RS.Heartbeat:Connect(function()local hrp=gH();if hrp and Mo.Target then hrp.CFrame=CFrame.new(Mo.Hit.Position+V3(0,3,0))end end)end)end
+local atp3=function()reg("tp",S.tp3,function()Cam.CameraType=Enum.CameraType.Scriptable;return RS.RenderStepped:Connect(function()local hrp=gH();if hrp then Cam.CFrame=CFrame.new(hrp.Position+V3(0,4,0)-Cam.CFrame.LookVector*S.td,hrp.Position+V3(0,2,0))end end)end)if not S.tp3 then Cam.CameraType=Enum.CameraType.Custom end end
+local agod=function()local h=gHu();if not h then return end;h.MaxHealth=S.gm and math.huge or 100;h.Health=S.gm and math.huge or 100 end
+local ainv=function()local c=gC();if not c then return end;for _,p in ipairs(c:GetDescendants())do if p:IsA"BasePart" and p.Name~="HumanoidRootPart"then p.LocalTransparencyModifier=S.inv and 1 or 0 end;if p:IsA"Decal"then p.Transparency=S.inv and 1 or 0 end end end
+local ahl=function()local c=gC();if not c then return end;local h=c:FindFirstChild"Head";if not h then return end;if S.hl then h.Size=V3(.001,.001,.001);for _,d in ipairs(h:GetChildren())do if d:IsA"Decal"then d.Transparency=1 end;if d:IsA"SpecialMesh"then d.Scale=V3()end end else h.Size=V3(2,1,1);for _,d in ipairs(h:GetChildren())do if d:IsA"Decal"then d.Transparency=0 end;if d:IsA"SpecialMesh"then d.Scale=V3(1,1,1)end end end end
+local afrz=function()local hrp=gH();if hrp then hrp.Anchored=S.frz end end
+local asc=function(v)local c=gC();if not c then return end;local h=c:FindFirstChildOfClass"Humanoid";if not h then return end;local sc=v/10;for _,n in ipairs{"BodyDepthScale","BodyHeightScale","BodyWidthScale","HeadScale"}do local nv=h:FindFirstChild(n);if not nv then nv=N("NumberValue");nv.Name=n;nv.Parent=h end;nv.Value=sc end end
+local ahb=function()for _,p in ipairs(Pl:GetPlayers())do if p~=LP and p.Character then local hrp=p.Character:FindFirstChild"HumanoidRootPart";if hrp then hrp.Size=S.hb and V3(S.hbs,S.hbs,S.hbs) or V3(2,2,1)end end end end
+local aka=function()reg("ka",S.ka,function()return RS.Heartbeat:Connect(function()local hrp=gH();if not hrp then return end;for _,p in ipairs(Pl:GetPlayers())do if p~=LP and p.Character then local ep=p.Character:FindFirstChild"HumanoidRootPart";if ep and(ep.Position-hrp.Position).Magnitude<=S.ar then local h=p.Character:FindFirstChildOfClass"Humanoid";if h then h.Health=0 end end end end end)end)end
+local afn=function()reg("fn",S.fn,function()return RS.Heartbeat:Connect(function()local hrp=gH();if not hrp then return end;local nr,bd=nil,math.huge;for _,p in ipairs(Pl:GetPlayers())do if p~=LP and p.Character then local ep=p.Character:FindFirstChild"HumanoidRootPart";if ep then local d=(ep.Position-hrp.Position).Magnitude;if d<bd then nr,bd=ep,d end end end end;if nr then hrp.CFrame=CFrame.new(hrp.Position,V3(nr.Position.X,hrp.Position.Y,nr.Position.Z))end end)end)end
+local asa=function()reg("sa",S.sa,function()return RS.RenderStepped:Connect(function()local hrp=gH();if not hrp then return end;local nr,bd=nil,math.huge;for _,p in ipairs(Pl:GetPlayers())do if p~=LP and p.Character then local ep=p.Character:FindFirstChild"HumanoidRootPart";if ep then local _,on=Cam:WorldToViewportPoint(ep.Position);if on then local d=(ep.Position-hrp.Position).Magnitude;if d<bd then nr,bd=ep,d end end end end end;if nr then local sp=Cam:WorldToViewportPoint(nr.Position);pcall(mousemoverel,sp.X-Mo.X,sp.Y-Mo.Y)end end)end)end
+local abt=function()reg("bt",S.bt,function()return Mo.Button1Down:Connect(function()local t=Mo.Target;if t and not t:IsDescendantOf(gC() or N"Folder")then t:Destroy()end end)end)end
+local afb=function()LT.Ambient=S.fb and C3(255,255,255) or C3(70,70,70);LT.Brightness=S.fb and 2 or 1;LT.OutdoorAmbient=S.fb and C3(255,255,255) or C3(127,127,127)end
+local anfg=function()LT.FogEnd=S.nf and 1e9 or 100000;LT.FogStart=S.nf and 1e9 or 0 end
+local adt=function()if S.dt then LT.ClockTime=12 end end
+local aafk=function()reg("afk",S.afk,function()return RS.Heartbeat:Connect(function()pcall(function()svc"VirtualUser":ClickButton2(V3())end)end)end)end
+local aac=function()reg("ac",S.ac,function()return RS.Heartbeat:Connect(function()local hrp=gH();if not hrp then return end;for _,d in ipairs(workspace:GetDescendants())do if d:IsA"BasePart"then local n=d.Name:lower();if(n:find"coin" or n:find"gem" or n:find"cash" or n:find"orb" or n:find"token" or n:find"drop")and(d.Position-hrp.Position).Magnitude<60 then hrp.CFrame=CFrame.new(d.Position);task.wait()end end end end)end)end
+local acsp=function()reg("cs",false,function()end);if not S.csp then return end;local tok={};S.con.cs=tok;coroutine.wrap(function()while S.con.cs==tok do pcall(function()svc"ReplicatedStorage".DefaultChatSystemChatEvents.SayMessageRequest:FireServer(S.cm,"All")end);task.wait(S.cd)end end)()end
+-- ESP
+local ef=N"Folder";ef.Name="CatHubESP";ef.Parent=workspace
+local clESP=function()for _,o in ipairs(S.eo)do pcall(function()o:Destroy()end)end;S.eo={}end
+local bldESP=function(p)
+	if p==LP then return end;local char=p.Character;if not char then return end
+	local hrp=char:FindFirstChild"HumanoidRootPart";if not hrp then return end
+	local hu=char:FindFirstChildOfClass"Humanoid";if not hu then return end
+	local bb=N"BillboardGui";bb.Name="ESP_"..p.Name;bb.Adornee=hrp;bb.Size=U2(0,120,0,52)
+	bb.StudsOffset=V3(0,3.5,0);bb.AlwaysOnTop=true;bb.ResetOnSpawn=false;bb.Parent=ef
+	table.insert(S.eo,bb)
+	if S.ne then
+		local nl=N("TextLabel",bb);nl.Size=U2(1,0,.55,0);nl.BackgroundTransparency=1
+		nl.Text=p.Name;nl.TextColor3=C3(255,220,50);nl.TextSize=14;nl.Font=Enum.Font.GothamBold
+		nl.TextStrokeTransparency=.3;nl.TextStrokeColor3=C3(0,0,0);nl.ZIndex=2
+	end
+	if S.he then
+		local bg=N("Frame",bb);bg.Size=U2(1,-8,0,7);bg.Position=U2(0,4,1,-9);bg.BackgroundColor3=C3(35,8,8);bg.BorderSizePixel=0;bg.ZIndex=2
+		N("UICorner",bg).CornerRadius=U(0,3)
+		local fl=N("Frame",bg);fl.BorderSizePixel=0;fl.ZIndex=3
+		local p0=math.clamp(hu.Health/math.max(hu.MaxHealth,1),0,1)
+		fl.Size=U2(p0,0,1,0);fl.BackgroundColor3=C3(55+math.floor(200*(1-p0)),55+math.floor(150*p0),40)
+		N("UICorner",fl).CornerRadius=U(0,3)
+		local hc;hc=RS.Heartbeat:Connect(function()if not bb.Parent or not hu.Parent then dc(hc);return end;local pct=math.clamp(hu.Health/math.max(hu.MaxHealth,1),0,1);fl.Size=U2(pct,0,1,0);fl.BackgroundColor3=C3(55+math.floor(200*(1-pct)),55+math.floor(150*pct),40)end)
+	end
+	if S.be then
+		local sb=N"SelectionBox";sb.Adornee=char;sb.Color3=C3(255,50,50);sb.LineThickness=.04
+		sb.SurfaceTransparency=.88;sb.SurfaceColor3=C3(255,50,50);sb.Parent=ef;table.insert(S.eo,sb)
+	end
+end
+local rfESP=function()clESP();if not(S.ne or S.he or S.be)then return end;for _,p in ipairs(Pl:GetPlayers())do bldESP(p)end end
+local hkESP=function(p)if p==LP then return end;p.CharacterAdded:Connect(function()task.wait(.6);if S.ne or S.he or S.be then bldESP(p)end end)end
+for _,p in ipairs(Pl:GetPlayers())do hkESP(p)end;Pl.PlayerAdded:Connect(hkESP)
+LP.CharacterAdded:Connect(function()task.wait(.5);aspd();ajmp();agrv();afov()
+	if S.fly then enFly()end;if S.nc then anc()end;if S.gm then agod()end
+	if S.inv then ainv()end;if S.hl then ahl()end;if S.bh then abh()end
+	if S.spin then aspin()end;if S.sf then asf()end;if S.frz then afrz()end
+	if S.cs~=10 then task.wait(.3);asc(S.cs)end
+end)
+LP.CharacterAdded:Connect(function(c)local h=c:WaitForChild"Humanoid";h.StateChanged:Connect(function(_,nw)if S.arag and nw==Enum.HumanoidStateType.Ragdoll then h:ChangeState(Enum.HumanoidStateType.GettingUp)end end)end)
+-- GUI
+pcall(function()CG:FindFirstChild"CatHub3":Destroy()end)
+local SG=N"ScreenGui";SG.Name="CatHub3";SG.ResetOnSpawn=false;SG.IgnoreGuiInset=true;SG.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+pcall(function()SG.Parent=CG end);if not SG.Parent then SG.Parent=LP.PlayerGui end
+local BG,PN,DR,RW=C3(12,12,18),C3(19,19,27),C3(16,16,24),C3(26,26,36)
+local AC,A2,TX,SB=C3(138,58,252),C3(82,28,160),C3(230,226,255),C3(115,110,148)
+local GN,RC,WN,IF=C3(50,200,105),C3(180,42,42),C3(215,152,25),C3(60,165,255)
+local WW,WH,DW,RH,SH,GP,FS=isMob and 294 or 330,isMob and 415 or 455,195,30,44,4,isMob and 11 or 12
+local cr=function(p,r)N("UICorner",p).CornerRadius=U(0,r or 8)end
+local pd=function(p,t,b,l,r)local u=N("UIPadding",p);u.PaddingTop=U(0,t or 0);u.PaddingBottom=U(0,b or 0);u.PaddingLeft=U(0,l or 0);u.PaddingRight=U(0,r or 0)end
+local fr=function(par,sz,pos,bg,zi)local f=N("Frame",par);f.Size=sz or U2(1,0,0,RH);f.Position=pos or U2(0,0,0,0);f.BackgroundColor3=bg or RW;f.BorderSizePixel=0;f.ZIndex=zi or 1;return f end
+local ml=function(p,g)local l=N("UIListLayout",p);l.Padding=U(0,g or GP);l.SortOrder=Enum.SortOrder.LayoutOrder;return l end
+local win=fr(SG,U2(0,WW,0,WH),U2(.5,-WW/2,.5,-WH/2),BG,5);cr(win,10);win.ClipsDescendants=true
+local ws=N("UIStroke",win);ws.Color=AC;ws.Thickness=1.2
+local tb=fr(win,U2(1,0,0,36),U2(0,0,0,0),A2,10);cr(tb,10);fr(win,U2(1,0,0,10),U2(0,0,0,26),A2,10)
+local function wB(xo,col,lbl,fn)local b=N("TextButton",tb);b.Size=U2(0,26,0,26);b.Position=U2(1,xo,0,5);b.BackgroundColor3=col;b.TextColor3=TX;b.Font=Enum.Font.GothamBold;b.TextSize=12;b.Text=lbl;b.BorderSizePixel=0;b.ZIndex=11;b.AutoButtonColor=false;cr(b,13);b.MouseButton1Click:Connect(fn)end
+wB(-32,C3(180,40,40),"✕",function()win.Visible=false end)
+local mini=false;wB(-62,C3(165,115,0),"─",function()mini=not mini;for _,c in ipairs(win:GetChildren())do if c~=tb then c.Visible=not mini end end;win.Size=mini and U2(0,WW,0,36) or U2(0,WW,0,WH)end)
+local hb2=N("TextButton",tb);hb2.Size=U2(0,30,0,26);hb2.Position=U2(0,5,0,5);hb2.BackgroundColor3=C3(60,28,120);hb2.TextColor3=TX;hb2.Font=Enum.Font.GothamBold;hb2.TextSize=14;hb2.Text="☰";hb2.BorderSizePixel=0;hb2.ZIndex=11;hb2.AutoButtonColor=false;cr(hb2,5)
+local tl2=N("TextLabel",tb);tl2.Size=U2(1,-110,1,0);tl2.Position=U2(0,42,0,0);tl2.BackgroundTransparency=1;tl2.Text="🐱 CatHub v3.2";tl2.TextColor3=TX;tl2.Font=Enum.Font.GothamBold;tl2.TextSize=14;tl2.TextXAlignment=Enum.TextXAlignment.Left;tl2.ZIndex=11
+do local drag,ds,dp=false;tb.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drag=true;ds=i.Position;dp=win.Position end end);UIS.InputChanged:Connect(function(i)if drag and(i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch)then local d=i.Position-ds;win.Position=U2(dp.X.Scale,dp.X.Offset+d.X,dp.Y.Scale,dp.Y.Offset+d.Y)end end);UIS.InputEnded:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drag=false end end)end
+local db=fr(win,U2(1,-12,0,24),U2(0,6,0,38),C3(36,24,6),6);cr(db,6);N("UIStroke",db).Color=WN
+local dl=N("TextLabel",db);dl.Size=U2(1,-8,1,0);dl.Position=U2(0,4,0,0);dl.BackgroundTransparency=1;dl.Text="⚠ [LOCAL]=only you  [GAME]=game-specific";dl.TextColor3=WN;dl.Font=Enum.Font.Gotham;dl.TextSize=9;dl.TextWrapped=true;dl.TextXAlignment=Enum.TextXAlignment.Left;dl.TextYAlignment=Enum.TextYAlignment.Center;dl.ZIndex=7
+local sc=N("ScrollingFrame",win);sc.Size=U2(1,0,1,-66);sc.Position=U2(0,0,0,66);sc.BackgroundTransparency=1;sc.BorderSizePixel=0;sc.ScrollBarThickness=3;sc.ScrollBarImageColor3=AC;sc.CanvasSize=U2(0,0,0,0);sc.ZIndex=6;pd(sc,6,6,6,6)
+local drw=fr(win,U2(0,DW,1,-36),U2(0,-DW,0,36),DR,20);N("UIStroke",drw).Color=C3(38,36,55)
+local dO=false;local TI=TweenInfo.new(.28,Enum.EasingStyle.Quart,Enum.EasingDirection.Out)
+local opnD=function()dO=true;TS:Create(drw,TI,{Position=U2(0,0,0,36)}):Play()end
+local clsD=function()dO=false;TS:Create(drw,TI,{Position=U2(0,-DW,0,36)}):Play()end
+hb2.MouseButton1Click:Connect(function()if dO then clsD()else opnD()end end)
+sc.InputBegan:Connect(function(i)if(i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch)and dO then clsD()end end)
+local dh=fr(drw,U2(1,0,0,80),U2(0,0,0,0),C3(20,16,36),21)
+local av=fr(dh,U2(0,44,0,44),U2(0,10,0,10),C3(60,28,120),22);cr(av,22)
+local ai=N("ImageLabel",av);ai.Size=U2(1,0,1,0);ai.BackgroundTransparency=1;ai.ZIndex=23;cr(ai,22)
+pcall(function()ai.Image="rbxthumb://type=AvatarHeadShot&id="..LP.UserId.."&w=60&h=60"end)
+local function lbl(par,txt,fs2,col,bold,xa,pos,sz,zi)local l=N("TextLabel",par);l.BackgroundTransparency=1;l.Text=txt;l.TextSize=fs2 or FS;l.TextColor3=col or TX;l.Font=bold and Enum.Font.GothamBold or Enum.Font.Gotham;l.TextXAlignment=xa or Enum.TextXAlignment.Left;l.Position=pos or U2(0,0,0,0);l.Size=sz or U2(1,0,1,0);l.ZIndex=zi or 22;return l end
+lbl(dh,LP.DisplayName or LP.Name,13,TX,true,nil,U2(0,62,0,14),U2(1,-68,0,20)).TextTruncate=Enum.TextTruncate.AtEnd
+lbl(dh,"@"..LP.Name,11,SB,false,nil,U2(0,62,0,36),U2(1,-68,0,16)).TextTruncate=Enum.TextTruncate.AtEnd
+local obg=fr(dh,U2(0,54,0,16),U2(0,10,0,59),C3(20,50,20),22);cr(obg,8);lbl(obg,"● Online",9,GN,true,Enum.TextXAlignment.Center)
+fr(dh,U2(1,-20,0,1),U2(0,10,1,-1),C3(38,36,55),22)
+local tlf=fr(drw,U2(1,0,1,-80),U2(0,0,0,80),BG,21);tlf.BackgroundTransparency=1;pd(tlf,6,6,0,0);ml(tlf,3)
+local TN={"Movement","Combat","Visual","Player","Utility","Extras"}
+local TI2={"🏃","⚔","👁","🧍","🔧","✨"}
+local tbB,tbP,curT={},{},0
+local swTab=function(i)
+	if curT==i then clsD();return end
+	if curT>0 then tbP[curT].Visible=false;tbB[curT].BackgroundTransparency=1;tbB[curT]:FindFirstChildOfClass"TextLabel".TextColor3=SB end
+	tbP[i].Visible=true;tbB[i].BackgroundTransparency=0;tbB[i].BackgroundColor3=A2;tbB[i]:FindFirstChildOfClass"TextLabel".TextColor3=TX
+	local ly=tbP[i]:FindFirstChildOfClass"UIListLayout";sc.CanvasSize=U2(0,0,0,(ly and ly.AbsoluteContentSize.Y or 0)+20);sc.CanvasPosition=V3();curT=i;clsD()
+end
+for i,name in ipairs(TN) do
+	local b=N("TextButton",tlf);b.Size=U2(1,-8,0,36);b.BackgroundTransparency=1;b.BorderSizePixel=0;b.ZIndex=22;b.AutoButtonColor=false;b.Text="";cr(b,7)
+	lbl(b,TI2[i],16,SB,false,nil,U2(0,6,0,0),U2(0,28,1,0))
+	lbl(b,name,FS,SB,true,nil,U2(0,36,0,0),U2(1,-40,1,0))
+	b.MouseButton1Click:Connect(function()swTab(i)end);tbB[i]=b
+	local pg=N("Frame",sc);pg.Size=U2(1,0,0,10);pg.BackgroundTransparency=1;pg.BorderSizePixel=0;pg.Visible=false;pg.ZIndex=7
+	local ly=ml(pg,GP);ly:GetPropertyChangedSignal"AbsoluteContentSize":Connect(function()pg.Size=U2(1,0,0,ly.AbsoluteContentSize.Y+12);if pg.Visible then sc.CanvasSize=U2(0,0,0,ly.AbsoluteContentSize.Y+20)end end);pd(pg,4,4,0,0);tbP[i]=pg
+end
+local sec=function(pg,t)local l=N("TextLabel",pg);l.Size=U2(1,0,0,18);l.BackgroundTransparency=1;l.Text=t;l.TextSize=10;l.TextColor3=SB;l.Font=Enum.Font.GothamBold;l.TextXAlignment=Enum.TextXAlignment.Center;l.ZIndex=9;return l end
+local tog=function(pg,txt,note,gF,sF)
+	local hn=type(note)=="string" and note~="";local rh=hn and RH+14 or RH
+	local r=fr(pg,U2(1,0,0,rh),nil,RW,8);cr(r,6)
+	local ll=N("TextLabel",r);ll.Size=U2(1,-54,0,RH);ll.Position=U2(0,8,0,0);ll.BackgroundTransparency=1;ll.ZIndex=9;ll.TextXAlignment=Enum.TextXAlignment.Left;ll.TextYAlignment=Enum.TextYAlignment.Center;ll.TextSize=FS;ll.Font=Enum.Font.Gotham;ll.TextColor3=TX;ll.Text=txt
+	if hn then local tc=note:find"LOCAL" and IF or note:find"GAME" and WN or GN;local nt=N("TextLabel",r);nt.Size=U2(1,-54,0,12);nt.Position=U2(0,8,0,RH-2);nt.BackgroundTransparency=1;nt.ZIndex=9;nt.TextXAlignment=Enum.TextXAlignment.Left;nt.TextSize=9;nt.Font=Enum.Font.GothamBold;nt.TextColor3=tc;nt.Text=note end
+	local pl2=fr(r,U2(0,38,0,20),U2(1,-44,0,math.floor((rh-20)/2)),RC,9);cr(pl2,10)
+	local kn=fr(pl2,U2(0,16,0,16),U2(0,2,.5,-8),C3(255,255,255),10);cr(kn,8)
+	local rf=function()local on=gF();pl2.BackgroundColor3=on and GN or RC;kn.Position=on and U2(1,-18,.5,-8) or U2(0,2,.5,-8)end;rf()
+	local si=false
+	r.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then si=true end end)
+	r.InputEnded:Connect(function(i)if not si then return end;si=false;if i.UserInputType==Enum.UserInputType.MouseButton1 or(i.UserInputType==Enum.UserInputType.Touch and wTap())then sF(not gF());rf()end end)
+	return r
+end
+local btn=function(pg,txt,cb)
+	local b=N("TextButton",pg);b.Size=U2(1,0,0,RH);b.BackgroundColor3=A2;b.TextColor3=TX;b.Font=Enum.Font.GothamBold;b.TextSize=FS;b.Text=txt;b.BorderSizePixel=0;b.ZIndex=9;b.AutoButtonColor=false;cr(b,6)
+	b.MouseEnter:Connect(function()b.BackgroundColor3=AC end);b.MouseLeave:Connect(function()b.BackgroundColor3=A2 end)
+	local si=false;b.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then si=true end end)
+	b.InputEnded:Connect(function(i)if not si then return end;si=false;if i.UserInputType==Enum.UserInputType.MouseButton1 or(i.UserInputType==Enum.UserInputType.Touch and wTap())then cb()end end)
+	return b
+end
+local sld=function(pg,txt,mn,mx,gF,sF)
+	local r=fr(pg,U2(1,0,0,SH),nil,RW,8);cr(r,6)
+	local ll=N("TextLabel",r);ll.Size=U2(.70,0,0,16);ll.Position=U2(0,8,0,4);ll.BackgroundTransparency=1;ll.ZIndex=9;ll.TextSize=10;ll.Font=Enum.Font.Gotham;ll.TextColor3=SB;ll.TextXAlignment=Enum.TextXAlignment.Left;ll.Text=txt
+	local vl=N("TextLabel",r);vl.Size=U2(0,34,0,16);vl.Position=U2(1,-40,0,4);vl.BackgroundTransparency=1;vl.ZIndex=9;vl.TextSize=11;vl.Font=Enum.Font.GothamBold;vl.TextColor3=AC;vl.TextXAlignment=Enum.TextXAlignment.Right;vl.Text=tostring(gF())
+	local tr=fr(r,U2(1,-16,0,4),U2(0,8,1,-10),C3(34,34,48),9);cr(tr,2)
+	local p0=math.clamp((gF()-mn)/(mx-mn),0,1)
+	local fi=fr(tr,U2(p0,0,1,0),nil,AC,10);cr(fi,2)
+	local th=fr(tr,U2(0,12,0,12),U2(p0,-6,.5,-6),C3(232,228,255),11);cr(th,6)
+	local drag=false
+	local upd=function(x)local a=tr.AbsolutePosition.X;local w=tr.AbsoluteSize.X;if w==0 then return end;local p=math.clamp((x-a)/w,0,1);local v=math.floor(mn+p*(mx-mn)+.5);sF(v);vl.Text=tostring(v);fi.Size=U2(p,0,1,0);th.Position=U2(p,-6,.5,-6)end
+	tr.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drag=true;upd(i.Position.X)end end)
+	UIS.InputChanged:Connect(function(i)if drag and(i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch)then upd(i.Position.X)end end)
+	UIS.InputEnded:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drag=false end end)
+	return r
+end
+local tbx=function(pg,ph)local t=N("TextBox",pg);t.Size=U2(1,0,0,RH);t.BackgroundColor3=PN;t.TextColor3=TX;t.PlaceholderText=ph or"";t.PlaceholderColor3=SB;t.Font=Enum.Font.Gotham;t.TextSize=FS;t.BorderSizePixel=0;t.ZIndex=9;t.ClearTextOnFocus=false;cr(t,6);pd(t,0,0,8,8);return t end
+local A=function(pg,w)w.Parent=pg end
+-- MOVEMENT
+local mv=tbP[1]
+A(mv,sec(mv,"Speed & Jump"))
+A(mv,tog(mv,"Speed Hack",nil,function()return S.spd end,function(v)S.spd=v;aspd()end))
+A(mv,sld(mv,"Walk Speed (16-300)",16,300,function()return S.ws end,function(v)S.ws=v;if S.spd then aspd()end end))
+A(mv,tog(mv,"Jump Power",nil,function()return S.jmp end,function(v)S.jmp=v;ajmp()end))
+A(mv,sld(mv,"Jump Power (50-300)",50,300,function()return S.jp end,function(v)S.jp=v;if S.jmp then ajmp()end end))
+A(mv,tog(mv,"Infinite Jump",nil,function()return S.ij end,function(v)S.ij=v end))
+A(mv,tog(mv,"Bunny Hop",nil,function()return S.bh end,function(v)S.bh=v;abh()end))
+A(mv,sec(mv,"Flight & World"))
+A(mv,tog(mv,"Fly (WASD/Space/Ctrl)",nil,function()return S.fly end,function(v)S.fly=v;if v then enFly()else dsFly()end end))
+A(mv,sld(mv,"Fly Speed (10-300)",10,300,function()return S.fs end,function(v)S.fs=v end))
+A(mv,tog(mv,"Noclip",nil,function()return S.nc end,function(v)S.nc=v;anc()end))
+A(mv,tog(mv,"Low Gravity",nil,function()return S.lg end,function(v)S.lg=v;agrv()end))
+A(mv,tog(mv,"Spin","[LOCAL]",function()return S.spin end,function(v)S.spin=v;aspin()end))
+A(mv,sld(mv,"Spin Speed (1-20)",1,20,function()return S.ss end,function(v)S.ss=v end))
+A(mv,tog(mv,"Safe Fall",nil,function()return S.sf end,function(v)S.sf=v;asf()end))
+A(mv,tog(mv,"Loop TP to Cursor",nil,function()return S.ltp end,function(v)S.ltp=v;altp()end))
+-- COMBAT
+local cb=tbP[2]
+A(cb,sec(cb,"Target"))
+local tBx=tbx(cb,"Player name...");A(cb,tBx)
+A(cb,btn(cb,"Teleport To",function()local p=Pl:FindFirstChild(tBx.Text);if not p or not p.Character then ntf("CH","Not found");return end;local ep=p.Character:FindFirstChild"HumanoidRootPart";local hrp=gH();if ep and hrp then hrp.CFrame=ep.CFrame+V3(3,0,0)end end))
+A(cb,btn(cb,"Spectate",function()local p=Pl:FindFirstChild(tBx.Text);if not p or not p.Character then ntf("CH","Not found");return end;local h=p.Character:FindFirstChildOfClass"Humanoid";if h then Cam.CameraSubject=h end end))
+A(cb,btn(cb,"Stop Spectate",function()local h=gHu();if h then Cam.CameraSubject=h end end))
+A(cb,btn(cb,"Fling",function()local p=Pl:FindFirstChild(tBx.Text);if not p or not p.Character then ntf("CH","Not found");return end;local ep=p.Character:FindFirstChild"HumanoidRootPart";local hrp=gH();if ep and hrp then ep.Velocity=(ep.Position-hrp.Position).Unit*999+V3(0,999,0)end end))
+A(cb,btn(cb,"Freeze",function()local p=Pl:FindFirstChild(tBx.Text);if not p or not p.Character then ntf("CH","Not found");return end;for _,pt in ipairs(p.Character:GetDescendants())do if pt:IsA"BasePart"then pt.Anchored=true end end;ntf("CH","Frozen")end))
+A(cb,sec(cb,"Combat"))
+A(cb,tog(cb,"Hitbox Expander","[LOCAL]",function()return S.hb end,function(v)S.hb=v;ahb()end))
+A(cb,sld(cb,"Hitbox Size (5-50)",5,50,function()return S.hbs end,function(v)S.hbs=v;if S.hb then ahb()end end))
+A(cb,tog(cb,"Kill Aura","[GAME]",function()return S.ka end,function(v)S.ka=v;aka()end))
+A(cb,sld(cb,"Aura Range (5-100)",5,100,function()return S.ar end,function(v)S.ar=v end))
+A(cb,tog(cb,"Silent Aim","[LOCAL] needs mousemoverel",function()return S.sa end,function(v)S.sa=v;asa()end))
+A(cb,tog(cb,"Anti-Ragdoll",nil,function()return S.arag end,function(v)S.arag=v end))
+A(cb,tog(cb,"Face Nearest",nil,function()return S.fn end,function(v)S.fn=v;afn()end))
+A(cb,btn(cb,"Super Punch",function()local hrp=gH();if not hrp then return end;for _,p in ipairs(Pl:GetPlayers())do if p~=LP and p.Character then local ep=p.Character:FindFirstChild"HumanoidRootPart";if ep and(ep.Position-hrp.Position).Magnitude<25 then ep.Velocity=(ep.Position-hrp.Position).Unit*600+V3(0,250,0)end end end end))
+A(cb,tog(cb,"BTools",nil,function()return S.bt end,function(v)S.bt=v;abt()end))
+-- VISUAL
+local vs=tbP[3]
+A(vs,sec(vs,"ESP"))
+A(vs,tog(vs,"Name ESP","[LOCAL]",function()return S.ne end,function(v)S.ne=v;rfESP()end))
+A(vs,tog(vs,"Health Bar","[LOCAL]",function()return S.he end,function(v)S.he=v;rfESP()end))
+A(vs,tog(vs,"Box ESP","[LOCAL]",function()return S.be end,function(v)S.be=v;rfESP()end))
+A(vs,sec(vs,"Camera"))
+A(vs,sld(vs,"FOV (30-120)",30,120,function()return S.fov end,function(v)S.fov=v;afov()end))
+A(vs,tog(vs,"3rd Person","[LOCAL]",function()return S.tp3 end,function(v)S.tp3=v;atp3()end))
+A(vs,sld(vs,"3P Distance (5-40)",5,40,function()return S.td end,function(v)S.td=v end))
+A(vs,sec(vs,"Lighting"))
+A(vs,tog(vs,"Fullbright","[LOCAL]",function()return S.fb end,function(v)S.fb=v;afb()end))
+A(vs,tog(vs,"Remove Fog","[LOCAL]",function()return S.nf end,function(v)S.nf=v;anfg()end))
+A(vs,tog(vs,"Daytime","[LOCAL]",function()return S.dt end,function(v)S.dt=v;adt()end))
+A(vs,btn(vs,"Ambient: Sunset",function()LT.Ambient=C3(255,175,70);LT.OutdoorAmbient=C3(255,175,70)end))
+A(vs,btn(vs,"Ambient: Night",function()LT.Ambient=C3(25,50,110);LT.OutdoorAmbient=C3(25,50,110)end))
+A(vs,btn(vs,"Reset Lighting",function()LT.Ambient=C3(70,70,70);LT.OutdoorAmbient=C3(127,127,127);LT.Brightness=1;LT.FogEnd=100000;LT.FogStart=0 end))
+A(vs,sec(vs,"FPS"))
+A(vs,btn(vs,"FPS 60",function()pcall(setfpscap,60);ntf("CH","FPS→60")end))
+A(vs,btn(vs,"FPS 144",function()pcall(setfpscap,144);ntf("CH","FPS→144")end))
+A(vs,btn(vs,"FPS 240",function()pcall(setfpscap,240);ntf("CH","FPS→240")end))
+A(vs,btn(vs,"FPS Unlimited",function()pcall(setfpscap,0);ntf("CH","Unlocked")end))
+-- PLAYER
+local pl=tbP[4]
+A(pl,sec(pl,"Character"))
+A(pl,tog(pl,"God Mode",nil,function()return S.gm end,function(v)S.gm=v;agod()end))
+A(pl,tog(pl,"Invisible","[LOCAL]",function()return S.inv end,function(v)S.inv=v;ainv()end))
+A(pl,tog(pl,"Headless","[LOCAL]",function()return S.hl end,function(v)S.hl=v;ahl()end))
+A(pl,tog(pl,"Freeze Self",nil,function()return S.frz end,function(v)S.frz=v;afrz()end))
+A(pl,tog(pl,"Platform Stand","[LOCAL]",function()return S.pt end,function(v)S.pt=v;local h=gHu();if h then h.PlatformStand=v end end))
+A(pl,sec(pl,"Scale [LOCAL] 10=1.0x"))
+A(pl,sld(pl,"Scale (5-20)",5,20,function()return S.cs end,function(v)S.cs=v;asc(v)end))
+A(pl,btn(pl,"Reset Scale",function()S.cs=10;asc(10);ntf("CH","Scale reset")end))
+A(pl,sec(pl,"Actions"))
+A(pl,btn(pl,"Remove Accessories",function()local c=gC();if not c then return end;local n=0;for _,a in ipairs(c:GetChildren())do if a:IsA"Accessory"then a:Destroy();n+=1 end end;ntf("CH","Removed "..n)end))
+A(pl,btn(pl,"Reset Character",function()local h=gHu();if h then h.Health=0 end end))
+A(pl,btn(pl,"Copy Position",function()local hrp=gH();if not hrp then return end;local p=hrp.Position;pcall(setclipboard,("%.1f,%.1f,%.1f"):format(p.X,p.Y,p.Z));ntf("CH","Copied!")end))
+A(pl,btn(pl,"Copy UserID",function()pcall(setclipboard,tostring(LP.UserId));ntf("CH","UID: "..LP.UserId)end))
+A(pl,sec(pl,"Waypoints"))
+local wpB=tbx(pl,"Waypoint name...");A(pl,wpB)
+A(pl,btn(pl,"💾 Save",function()local hrp=gH();if not hrp then return end;local n=wpB.Text~="" and wpB.Text or "wp"..#S.wp+1;S.wp[n]=hrp.CFrame;ntf("CH","Saved: "..n)end))
+A(pl,btn(pl,"📍 Go To",function()local cf=S.wp[wpB.Text];local hrp=gH();if cf and hrp then hrp.CFrame=cf else ntf("CH","Not found")end end))
+-- UTILITY
+local ut=tbP[5]
+A(ut,sec(ut,"Server"))
+A(ut,btn(ut,"Rejoin",function()pcall(function()svc"TeleportService":Teleport(game.PlaceId)end)end))
+A(ut,btn(ut,"Server Hop",function()pcall(function()local T=svc"TeleportService";local p2=Pl:GetServerStats(game.PlaceId);if p2 then for _,sv in ipairs(p2:GetCurrentPage())do if sv.Id~=game.JobId and sv.Playing<sv.MaxPlayers then T:TeleportToPlaceInstance(game.PlaceId,sv.Id);return end end end;ntf("CH","No servers found")end)end))
+A(ut,btn(ut,"Copy Game ID",function()pcall(setclipboard,tostring(game.PlaceId));ntf("CH","ID: "..game.PlaceId)end))
+A(ut,btn(ut,"List Players",function()local ns={};for _,p in ipairs(Pl:GetPlayers())do table.insert(ns,p.Name)end;ntf("CH",table.concat(ns,", "),7)end))
+A(ut,btn(ut,"Server Info",function()ntf("CH","Players: "..#Pl:GetPlayers().."/"..Pl.MaxPlayers,5)end))
+A(ut,btn(ut,"My Ping",function()pcall(function()local st=svc"Stats";ntf("CH","Ping: "..math.floor(st.Network.ServerStatsItem["Data Ping"]:GetValue()).."ms")end)end))
+A(ut,sec(ut,"Toggles"))
+A(ut,tog(ut,"Anti-AFK",nil,function()return S.afk end,function(v)S.afk=v;aafk()end))
+A(ut,tog(ut,"Auto-Collect","[GAME]",function()return S.ac end,function(v)S.ac=v;aac()end))
+A(ut,tog(ut,"Chat Spam","[GAME]",function()return S.csp end,function(v)S.csp=v;acsp()end))
+local csB=tbx(ut,"Spam message...");csB.Text=S.cm;csB.FocusLost:Connect(function()S.cm=csB.Text end);A(ut,csB)
+A(ut,sld(ut,"Spam Delay (1-30s)",1,30,function()return S.cd end,function(v)S.cd=v end))
+A(ut,btn(ut,"Enable Auto-Rejoin",function()LP.OnTeleport:Connect(function(st)if st==Enum.TeleportState.Failed then pcall(function()svc"TeleportService":Teleport(game.PlaceId)end)end end);ntf("CH","Auto-rejoin ON")end))
+-- EXTRAS
+local ex=tbP[6]
+A(ex,sec(ex,"Fun"))
+A(ex,btn(ex,"Float Up",function()local hrp=gH();if not hrp then return end;local bv=N("BodyVelocity",hrp);bv.Velocity=V3(0,200,0);bv.MaxForce=V3(0,9e9,0);svc"Debris":AddItem(bv,.35)end))
+A(ex,btn(ex,"Speed Burst (5s)",function()local h=gHu();if not h then return end;local old=h.WalkSpeed;h.WalkSpeed=250;ntf("CH","Burst! 5s");task.delay(5,function()h.WalkSpeed=S.spd and S.ws or old end)end))
+A(ex,btn(ex,"TP to Spawn",function()local sp=workspace:FindFirstChildOfClass"SpawnLocation" or workspace:FindFirstChild"Spawn";local hrp=gH();if sp and hrp then hrp.CFrame=sp.CFrame+V3(0,5,0);ntf("CH","Done")else ntf("CH","No spawn")end end))
+A(ex,btn(ex,"Sit Toggle",function()local h=gHu();if h then h.Sit=not h.Sit end end))
+A(ex,btn(ex,"Reload Character",function()pcall(function()LP:LoadCharacter()end)end))
+A(ex,sec(ex,"Chat"))
+A(ex,btn(ex,"Announce Me",function()pcall(function()svc"ReplicatedStorage".DefaultChatSystemChatEvents.SayMessageRequest:FireServer("★ "..LP.Name.." is using CatHub! ★","All")end)end))
+A(ex,sec(ex,"Debug"))
+A(ex,btn(ex,"Dump State (F9)",function()print("=CatHub=");for k,v in pairs(S)do if type(v)~="table" and type(v)~="userdata"then print(k,v)end end;ntf("CH","Dumped!")end))
+-- Boot
+if isMob then local fab=N("TextButton",SG);fab.Size=U2(0,46,0,46);fab.Position=U2(0,8,.52,-23);fab.BackgroundColor3=AC;fab.TextColor3=TX;fab.Font=Enum.Font.GothamBold;fab.TextSize=20;fab.Text="🐱";fab.BorderSizePixel=0;fab.ZIndex=30;fab.AutoButtonColor=false;cr(fab,23);fab.MouseButton1Click:Connect(function()win.Visible=not win.Visible;if not win.Visible then clsD()end end)end
+UIS.InputBegan:Connect(function(i,gp)if not gp and i.KeyCode==Enum.KeyCode.RightShift then win.Visible=not win.Visible;if not win.Visible then clsD()end end end)
+swTab(1);task.delay(.8,function()ntf("🐱 CatHub v3.2","☰=tabs | RightShift=toggle",5);print"[CatHub v3.2] Ready"end)

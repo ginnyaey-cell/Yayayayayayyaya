@@ -1,4 +1,4 @@
--- CatHub v3.3 | [LOCAL]=only you | [GAME]=game-specific
+-- CatHub v3.2 | [LOCAL]=only you | [GAME]=game-specific
 local N,C3,V3,U2,U=Instance.new,Color3.fromRGB,Vector3.new,UDim2.new,UDim.new
 local svc=function(s)return game:GetService(s)end
 local Pl,RS,UIS,TS,CG,LT,SG2=svc"Players",svc"RunService",svc"UserInputService",svc"TweenService",svc"CoreGui",svc"Lighting",svc"StarterGui"
@@ -144,8 +144,8 @@ lbl(dh,"@"..LP.Name,11,SB,false,nil,U2(0,62,0,36),U2(1,-68,0,16)).TextTruncate=E
 local obg=fr(dh,U2(0,54,0,16),U2(0,10,0,59),C3(20,50,20),22);cr(obg,8);lbl(obg,"● Online",9,GN,true,Enum.TextXAlignment.Center)
 fr(dh,U2(1,-20,0,1),U2(0,10,1,-1),C3(38,36,55),22)
 local tlf=fr(drw,U2(1,0,1,-80),U2(0,0,0,80),BG,21);tlf.BackgroundTransparency=1;pd(tlf,6,6,0,0);ml(tlf,3)
-local TN={"Movement","Combat","Visual","Player","Utility","Extras"}
-local TI2={"🏃","⚔","👁","🧍","🔧","✨"}
+local TN={"Movement","Combat","Visual","Player","Utility","Extras","Scripts"}
+local TI2={"🏃","⚔","👁","🧍","🔧","✨","📜"}
 -- Hidden holder — inactive pages live here so they never stack inside sc
 local pgStore=N("Frame",win);pgStore.Size=U2(0,0,0,0);pgStore.BackgroundTransparency=1;pgStore.Visible=false;pgStore.ZIndex=1
 local tbB,tbP,tbL,curT={},{},{},0
@@ -325,7 +325,48 @@ A(ex,sec(ex,"Chat"))
 A(ex,btn(ex,"Announce Me",function()pcall(function()svc"ReplicatedStorage".DefaultChatSystemChatEvents.SayMessageRequest:FireServer("★ "..LP.Name.." is using CatHub! ★","All")end)end))
 A(ex,sec(ex,"Debug"))
 A(ex,btn(ex,"Dump State (F9)",function()print("=CatHub=");for k,v in pairs(S)do if type(v)~="table" and type(v)~="userdata"then print(k,v)end end;ntf("CH","Dumped!")end))
+-- SCRIPTS
+local sc2=tbP[7]
+-- card builder: each script gets a styled card with description, disclaimer, run button
+local function scriptCard(pg,name,desc,url)
+    local card=fr(pg,U2(1,0,0,1),nil,C3(22,22,32),8);cr(card,8)
+    local cly=N("UIListLayout",card);cly.Padding=U(0,5);cly.SortOrder=Enum.SortOrder.LayoutOrder
+    local cp=N("UIPadding",card);cp.PaddingTop=U(0,8);cp.PaddingBottom=U(0,8);cp.PaddingLeft=U(0,8);cp.PaddingRight=U(0,8)
+    N("UIStroke",card).Color=C3(60,30,120)
+    local function tl(par,t,fs2,col,bold,wrap)local l=N("TextLabel",par);l.Size=U2(1,0,0,1);l.AutomaticSize=Enum.AutomaticSize.Y;l.BackgroundTransparency=1;l.Text=t;l.TextColor3=col or TX;l.Font=bold and Enum.Font.GothamBold or Enum.Font.Gotham;l.TextSize=fs2 or 11;l.TextWrapped=wrap~=false;l.TextXAlignment=Enum.TextXAlignment.Left;l.ZIndex=9;return l end
+    tl(card,"📜  "..name,13,TX,true,false)
+    tl(card,desc,10,SB)
+    tl(card,"⚠ Made by AI — some features may not work on certain executors.",9,WN,true)
+    local running=false
+    local rb=N("TextButton",card);rb.Size=U2(1,0,0,28);rb.BackgroundColor3=A2;rb.TextColor3=TX;rb.Font=Enum.Font.GothamBold;rb.TextSize=12;rb.Text="▶  Run "..name;rb.BorderSizePixel=0;rb.ZIndex=9;rb.AutoButtonColor=false;cr(rb,6)
+    rb.MouseEnter:Connect(function()rb.BackgroundColor3=AC end);rb.MouseLeave:Connect(function()rb.BackgroundColor3=A2 end)
+    local si=false
+    rb.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then si=true end end)
+    rb.InputEnded:Connect(function(i)
+        if not si then return end;si=false
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or(i.UserInputType==Enum.UserInputType.Touch and wTap())then
+            if running then ntf("Scripts",name.." already running");return end
+            running=true;rb.Text="⏳  Loading...";rb.BackgroundColor3=C3(50,50,70)
+            task.spawn(function()
+                local ok,err=pcall(function()loadstring(game:HttpGet(url))()end)
+                if ok then
+                    rb.Text="✔  "..name.." Loaded";rb.BackgroundColor3=C3(30,100,50);ntf("Scripts",name.." loaded!")
+                else
+                    running=false;rb.Text="✖  Failed — tap to retry";rb.BackgroundColor3=C3(120,30,30)
+                    ntf("Scripts","Failed: "..(tostring(err):sub(1,60)),6)
+                    task.delay(3,function()rb.Text="▶  Run "..name;rb.BackgroundColor3=A2 end)
+                end
+            end)
+        end
+    end)
+    cly:GetPropertyChangedSignal"AbsoluteContentSize":Connect(function()card.Size=U2(1,0,0,cly.AbsoluteContentSize.Y+16)end)
+    return card
+end
+A(sc2,sec(sc2,"Scripts"))
+local sdis=N("TextLabel",sc2);sdis.Size=U2(1,0,0,1);sdis.AutomaticSize=Enum.AutomaticSize.Y;sdis.BackgroundTransparency=1
+sdis.Text="⚠  Scripts run via loadstring.\nEnable HTTP Requests in your executor settings first.";sdis.TextColor3=WN;sdis.Font=Enum.Font.Gotham;sdis.TextSize=9;sdis.TextWrapped=true;sdis.TextXAlignment=Enum.TextXAlignment.Center;sdis.ZIndex=9;sdis.Parent=sc2
+A(sc2,scriptCard(sc2,"CatTools","Delete, move and inspect objects inside any game. Adds an in-game toolbar for workspace editing.","https://raw.githubusercontent.com/ginnyaey-cell/CatTools/refs/heads/main/CatTools"))
 -- Boot
 if isMob then local fab=N("TextButton",SG);fab.Size=U2(0,46,0,46);fab.Position=U2(0,8,.52,-23);fab.BackgroundColor3=AC;fab.TextColor3=TX;fab.Font=Enum.Font.GothamBold;fab.TextSize=20;fab.Text="🐱";fab.BorderSizePixel=0;fab.ZIndex=30;fab.AutoButtonColor=false;cr(fab,23);fab.MouseButton1Click:Connect(function()win.Visible=not win.Visible;if not win.Visible then clsD()end end)end
 UIS.InputBegan:Connect(function(i,gp)if not gp and i.KeyCode==Enum.KeyCode.RightShift then win.Visible=not win.Visible;if not win.Visible then clsD()end end end)
-swTab(1);task.delay(.8,function()ntf("🐱 CatHub v3.2","☰=tabs | RightShift=toggle",5);print"[CatHub v3.2] Ready"end)
+swTab(1);task.delay(.8,function()ntf("🐱 CatHub v3.3","☰=tabs | RightShift=toggle",5);print"[CatHub v3.3] Ready"end)
